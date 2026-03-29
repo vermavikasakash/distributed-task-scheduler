@@ -1,13 +1,9 @@
-import axios from "axios";
+import axiosInstance from "./axiosInstance";
 
 //? REGISTER API
 const registerFunction = async (payload) => {
   try {
-    const res = await axios.post(
-      `${process.env.REACT_APP_API}/api/v1/auth/register`,
-      payload
-    );
-    return res;
+    return await axiosInstance.post("/api/v1/auth/register", payload);
   } catch (error) {
     console.log(error);
     return error;
@@ -15,13 +11,10 @@ const registerFunction = async (payload) => {
 };
 
 //? LOGIN API
-
 const loginFunction = async (payload) => {
   try {
-    const res = await axios.post(
-      `${process.env.REACT_APP_API}/api/v1/auth/login`,
-      payload
-    );
+    const res = await axiosInstance.post("/api/v1/auth/login", payload);
+
     return res;
   } catch (error) {
     console.log(error);
@@ -32,11 +25,7 @@ const loginFunction = async (payload) => {
 //? AGENT CREATION API
 const agentCreationFunction = async (payload) => {
   try {
-    const res = await axios.post(
-      `${process.env.REACT_APP_API}/api/v1/auth/createAgent`,
-      payload
-    );
-    return res;
+    return await axiosInstance.post("/api/v1/auth/createAgent", payload);
   } catch (error) {
     console.log(error);
     return error;
@@ -46,55 +35,46 @@ const agentCreationFunction = async (payload) => {
 //? TASKS CREATION API
 const taskCreationFunction = async (tasks) => {
   try {
-    
-    // Filter out entries where agent or tasks are missing/empty
-    const validTasks = tasks.filter(
-      ({ agent, tasks }) => agent && agent._id && tasks && tasks.length > 0
-    );
-
-    if (validTasks.length === 0) {
-      console.warn("No valid tasks to post.");
+    if (!tasks || tasks.length === 0) {
+      console.warn("No tasks to post.");
       return;
     }
 
-    const requests = validTasks.map(({ agent, tasks }) => {
-      return axios.post(`${process.env.REACT_APP_API}/api/v1/auth/createTask`, {
-        agentId: agent._id, // Send agent's ID
-        agentName: agent.name,
-        tasks: tasks, // Send tasks related to this agent
-      });
+    return await axiosInstance.post("/api/v1/auth/createTask", {
+      tasks,
     });
-
-    const responses = await Promise.all(requests); // Wait for all API calls
-    console.log(
-      "All tasks posted successfully:",
-      responses.map((res) => res.data)
-    );
-    return responses[0];
   } catch (error) {
     console.error("Error posting tasks:", error);
+
+    return {
+      status: error?.response?.status || 500,
+      data: {
+        message: error?.response?.data?.message || "Something went wrong",
+      },
+    };
   }
 };
 
 //? GET AGENT API
-const getAgentsFunction = async () => {
-  try {
-    const res = await axios.get(
-      `${process.env.REACT_APP_API}/api/v1/auth/getAgents`
-    );
-    return res;
-  } catch (error) {
-    console.log(error);
-    return error;
-  }
-};
+const getAgentsFunction = () => axiosInstance.get("/api/v1/auth/getAgents");
 
 //? GET TASKS API
-const getTasksFunction = async () => {
+const getAllTasksFunction = () => axiosInstance.get("/api/v1/auth/getTasks");
+
+//? GET TASKS API
+const getAgentTasksFunction = () => axiosInstance.get("/api/v1/auth/myTasks");
+
+//? GET Dashboard Stats API
+const getDashboardStatsFunction = () =>
+  axiosInstance.get("/api/v1/auth/dashboard-stats");
+
+//! PATCH AGENT API
+const patchAgentFunction = async (id) => {
   try {
-    const res = await axios.get(
-      `${process.env.REACT_APP_API}/api/v1/auth/getTasks`
-    );
+    const res = await axiosInstance.patch(`/api/v1/auth/task/${id}/status`, {
+      status: "completed",
+    });
+
     return res;
   } catch (error) {
     console.log(error);
@@ -108,5 +88,8 @@ export {
   agentCreationFunction,
   taskCreationFunction,
   getAgentsFunction,
-  getTasksFunction,
+  getAllTasksFunction,
+  getAgentTasksFunction,
+  getDashboardStatsFunction,
+  patchAgentFunction,
 };

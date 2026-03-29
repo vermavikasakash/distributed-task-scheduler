@@ -5,6 +5,7 @@ const connectDB = require("./config/db");
 const morgan = require("morgan");
 const authRoute = require("./routes/authRoute");
 const cors = require("cors")
+require("./helpers/worker");
 
 //rest object
 const app = express();

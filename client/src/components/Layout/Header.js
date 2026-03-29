@@ -7,13 +7,12 @@ import { useNavigate } from "react-router-dom";
 const Header = () => {
   const navigate = useNavigate();
 
-  let user = localStorage.getItem("user");
+  let user = sessionStorage.getItem("user");
   // console.log("user", user);
 
   // ?? LOGOUT HANDLER
   const logOutHandler = () => {
-    localStorage.removeItem("role");
-    localStorage.removeItem("user");
+    sessionStorage.clear();
     toast.success("Logged Out Successfully");
     setTimeout(() => {
       navigate("/");
@@ -25,8 +24,8 @@ const Header = () => {
     <>
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
         <div className="container-fluid">
-          <Link to={user && "/home-page"} className="navbar-brand">
-            Machine Test
+          <Link to={user && "/home-page"} className="navbar-brand" style={{ textTransform:"none"}}>
+            Task Scheduler
           </Link>
 
           <div>
@@ -36,7 +35,7 @@ const Header = () => {
                 <>
                   <li className="nav-item">
                     <NavLink to="/home-page" className="nav-link ">
-                      Home
+                      Dashboard 
                     </NavLink>
                   </li>
                   <li className="nav-item">

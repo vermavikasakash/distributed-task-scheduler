@@ -1,3 +1,37 @@
+.table {
+  width: 100%;
+  max-width: 900px;
+  margin: 20px auto;
+  border-collapse: collapse;
+}
+
+.table_header {
+  background-color: #1f4d2e;
+  color: white;
+}
+
+.table th,
+.table td {
+  padding: 12px;
+  text-align: center;
+}
+
+.details_row {
+  background-color: #f9f9f9;
+      border-bottom: 0.5px solid;
+}
+
+.details_row2 {
+  background-color: #ffffff;
+      border-bottom: 0.5px solid;
+}
+
+.empty_state {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
 /* Register */
 * {
   font-family: "Poppins";
@@ -6,7 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 100vh;
+  min-height: 50vh;
   flex-direction: column;
   width: auto;
 }
@@ -25,33 +59,7 @@
   margin-top: 1rem;
 }
 
-.top_row {
-  background-color: #1a472a;
-  color: #fff;
 
-  font-weight: 400;
-  font-size: 20px;
-  height: 76px;
-  display: flex;
-  align-items: center;
-}
-.top_col {
-  text-align: center;
-  /* text-transform: capitalize; */
-}
-
-.details_row {
-  font-size: 16px;
-  background-color: #e4e2e2;
-  display: flex;
-  align-items: center;
-}
-.details_row2 {
-  font-size: 16px;
-  /* background-color: #e4e2e2; */
-  display: flex;
-  align-items: center;
-}
 .uploadFileDiv {
   align-items: center;
 }
@@ -67,6 +75,7 @@
   justify-content: start;
   margin-top: 2rem;
   margin-left: 2rem;
+  gap:7px;
 }
 .activeTab {
   border: 1px solid #fff;

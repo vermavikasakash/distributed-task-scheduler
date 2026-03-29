@@ -5,7 +5,7 @@ import ViewTask from "../Tasks/ViewTask";
 import styles from "../AgentScreen/AgentCreation.module.css";
 
 const HomePage = () => {
-  let role = localStorage.getItem("role");
+  let role = sessionStorage.getItem("role");
 
   // console.log("role", role);
 
@@ -15,15 +15,15 @@ const HomePage = () => {
     
       <div className={styles.tabDiv}>
         <Link to={"/view-agent"} className={styles.activeTab}>
-          View Agent
+          Agents 
         </Link>
         {role == 1 && (
           <>
             <Link to={"/create-agent"} className={styles.activeTab}>
-              Create Agent
+              Add Agent
             </Link>
             <Link to={"/create-task"} className={styles.activeTab}>
-              Create Task
+             Upload Tasks
             </Link>
           </>
         )}

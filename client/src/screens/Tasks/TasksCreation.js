@@ -2,9 +2,9 @@ import React, { useEffect, useState } from "react";
 import Layout from "../../components/Layout/Layout";
 import Task_Template from "../../components/Task_Template.xls";
 import styles from "../AgentScreen/AgentCreation.module.css";
-import { Button, Col, Container, Row, Form, Table } from "react-bootstrap";
+import { Button, Col, Container, Row, Table } from "react-bootstrap";
 import {
-  getAgentsFunction,
+  getDashboardStatsFunction,
   taskCreationFunction,
 } from "../../serviceApi/registerApi";
 import * as XLSX from "xlsx";
@@ -13,15 +13,16 @@ import { useNavigate } from "react-router-dom";
 
 const TaskCreation = () => {
   const [task, setTask] = useState([]);
-  const [agents, setAgents] = useState([]);
-  const navigate = useNavigate();
-  const [distributedTasks, setDistributedTasks] = useState([]); // To Holds the tasks assigned to agents
+  const [fileName, setFileName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [statsResult, setStatsResult] = useState([]);
 
-  // ? GET AGENTS
+  const navigate = useNavigate();
+
   const getAgents = async () => {
-    let result = await getAgentsFunction();
-    if (result?.status === 200) {
-      setAgents(result?.data?.agent);
+    let statsResult = await getDashboardStatsFunction();
+    if (statsResult?.status == 200) {
+      setStatsResult(statsResult?.data?.data);
     }
   };
 
@@ -29,172 +30,173 @@ const TaskCreation = () => {
     getAgents();
   }, []);
 
-  // ?  READING EXCEL FILE
+  // ? READ EXCEL
   const readExcel = (file) => {
-    const promise = new Promise((resolve, reject) => {
-      const fileReader = new FileReader();
-      fileReader.readAsArrayBuffer(file);
+    setFileName(file.name);
 
-      fileReader.onload = (e) => {
-        const bufferArray = e.target.result;
-        const wb = XLSX.read(bufferArray, { type: "buffer" });
-        const wsName = wb.SheetNames[0];
-        const ws = wb.Sheets[wsName];
-        const data = XLSX.utils.sheet_to_json(ws);
-        resolve(data);
-      };
-      fileReader.onerror = (error) => {
-        reject(error);
-      };
-    });
-    promise.then((data) => {
+    const fileReader = new FileReader();
+
+    fileReader.readAsArrayBuffer(file);
+
+    fileReader.onload = (e) => {
+      const bufferArray = e.target.result;
+      const wb = XLSX.read(bufferArray, { type: "buffer" });
+      const wsName = wb.SheetNames[0];
+      const ws = wb.Sheets[wsName];
+
+      const data = XLSX.utils.sheet_to_json(ws);
+
       setTask(data);
-      // Distributing the tasks after reading it
-      distributeTasks(data);
-    });
+    };
+
+    fileReader.onerror = () => {
+      toast.error("Error reading file");
+    };
   };
 
-  // ? Distribute tasks equally among agents
-  const distributeTasks = (tasks) => {
-    const totalTasks = tasks.length;
-    const totalAgents = agents.length;
-    // Number of tasks each agent will gets
-    const tasksPerAgent = Math.floor(totalTasks / totalAgents);
-    // Remaining tasks
-    const remainingTasks = totalTasks % totalAgents;
-
-    // Initializing an array to hold the distributed tasks
-    const taskDistribution = agents.map((agent, index) => {
-      // Finding the range of tasks to assign to this agent
-      const startIdx = index * tasksPerAgent;
-      const endIdx = startIdx + tasksPerAgent;
-      const assignedTasks = tasks.slice(startIdx, endIdx);
-
-      // Distribute the remaining tasks (round-robin)
-      if (index < remainingTasks) {
-        assignedTasks.push(tasks[endIdx + index]); // Add remaining tasks to agents sequentially
-      }
-
-      return { agent, tasks: assignedTasks };
-    });
-
-    setDistributedTasks(taskDistribution);
-  };
-
-  console.log("distributedTasks", distributedTasks);
-
-  //? Task Creation API Call
+  //? UPLOAD HANDLER
   const uploadHandler = async () => {
     if (task.length === 0) {
-      toast.error("No valid tasks found in the uploaded file!");
+      toast.error("No valid tasks found!");
       return;
     }
 
-    // Define required keys for validation
     const requiredKeys = ["SNo", "firstName", "phone", "notes"];
 
-    // Check if all required keys exist in the first row of the parsed Excel data
     const isValidFile = requiredKeys.every((key) => key in task[0]);
 
     if (!isValidFile) {
-      toast.error(
-        "Invalid file format! Please upload the correct Excel template."
-      );
+      toast.error("Invalid file format! Use correct template.");
       return;
     }
 
-    let result = await taskCreationFunction(distributedTasks);
-    if (result.status == 200) {
-      toast.success(result.data.message);
-      navigate("/home-page");
+    try {
+      setLoading(true);
+
+      const result = await taskCreationFunction(task);
+
+      if (result?.status === 202) {
+       toast.info("Tasks are being processed in background");
+        setTask([]);
+        setFileName("");
+        setTimeout(() => {
+          navigate("/home-page");
+        }, 3000);
+      } else {
+        toast.error("Upload failed");
+      }
+    } catch (error) {
+      toast.error("No agents available. Please add agents first.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // ! JSX START
   return (
     <Layout>
-      <p className={styles.top_heading}>Task Creation </p>
+      <h3 style={{ textAlign: "center", marginTop: "20px" }}>Upload Tasks</h3>
+      <h6 style={{ textAlign: "center" }}>Bulk upload tasks using Excel</h6>
+
       <Container>
-        <Button variant="dark">
+        {/* TEMPLATE DOWNLOAD */}
+        <Button variant="dark" className="mb-3">
           <a href={Task_Template} download="Task_Template">
-            Download Task Template
+            ⬇️ Download Excel Template
           </a>
         </Button>
 
-        {/* //? UPLOAD FILE */}
+        {/* FILE UPLOAD */}
         <Row className={styles.uploadFileDiv}>
-          <label className={`${styles.uploadFileText} `}>Upload File</label>{" "}
-          <br />
+          <label className={styles.uploadFileText}>
+            Upload Excel file (.xlsx)
+          </label>
+
           <Col md={4}>
             <input
-              className={`${styles.fileInput} `}
+              className={styles.fileInput}
               type="file"
               accept=".xlsx, .xls, .csv"
-              id="fileUpload"
               onChange={(e) => {
                 const file = e.target.files[0];
-                if (file) {
-                  const fileExtension = file.name
-                    .split(".")
-                    .pop()
-                    .toLowerCase();
-                  const allowedExtensions = ["xlsx", "xls", "csv"];
 
-                  if (!allowedExtensions.includes(fileExtension)) {
-                    toast.error(
-                      "Invalid file type! Please upload an Excel or CSV file."
-                    );
-                    return;
-                  }
-                  readExcel(file);
+                if (!file) return;
+
+                const allowedExtensions = ["xlsx", "xls", "csv"];
+                const ext = file.name.split(".").pop().toLowerCase();
+
+                if (!allowedExtensions.includes(ext)) {
+                  toast.error("Invalid file type!");
+                  return;
                 }
+
+                readExcel(file);
               }}
             />
           </Col>
+
           <Col>
             <Button
               variant="success"
-              disabled={task.length == 0}
+              disabled={
+                statsResult?.totalAgents === 0 || task.length === 0 || loading
+              }
               onClick={uploadHandler}
             >
-              Upload Task
+              {loading ? "Uploading..." : "Upload Task"}
             </Button>
           </Col>
         </Row>
+        {statsResult?.totalAgents === 0 && (
+          <p style={{ marginTop: "10px", fontSize: "14px", color: "red" }}>
+            No agents available. Please add agents first.
+          </p>
+        )}
 
-        <Row>
-          <Table hover size="sm" className="mt-4">
-            {/* TABLE HEADING START */}
-            <thead className={`${styles.tableHeading}`}>
-              <tr>
-                <th className={`${styles.headSno}`}>S. No.</th>
-                <th className={`${styles.headName}`}>First Name</th>
-                <th className={`${styles.headDesc}`}>Phone</th>
-                <th className={`${styles.headTitle}`}>Task Name</th>
-              </tr>
-            </thead>
+        {/* FILE NAME */}
+        {fileName && (
+          <p style={{ marginTop: "10px" }}>📄 Selected file: {fileName}</p>
+        )}
 
-            {/* // TABLE BODY START */}
-            <tbody className={`${styles.tableBody}`}>
-              {task.length > 0 ? (
-                task.map((data, i) => (
-                  <tr className="align-middle" key={i}>
-                    <td>{data?.SNo}</td>
-                    <td>{data?.firstName}</td>
-                    <td>{data?.phone}</td>
-                    <td>{data?.notes}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan={6} className={styles.noUser}>
-                    No Tasks Available
-                  </td>
+        {/* TASK COUNT */}
+        {task.length > 0 && (
+          <p style={{ marginTop: "10px" }}>Total Tasks Parsed: {task.length}</p>
+        )}
+
+        {/* TABLE */}
+        <Table hover size="sm" className="mt-4">
+          <thead className={styles.tableHeading}>
+            <tr>
+              <th>S. No.</th>
+              <th>First Name</th>
+              <th>Phone</th>
+              <th>Task Description</th>
+            </tr>
+          </thead>
+
+          <tbody className={styles.tableBody}>
+            {task.length > 0 ? (
+              task.map((data, i) => (
+                <tr key={i}>
+                  <td>{data?.SNo}</td>
+                  <td>{data?.firstName}</td>
+                  <td>{data?.phone}</td>
+                  <td>{data?.notes}</td>
                 </tr>
-              )}
-            </tbody>
-          </Table>
-        </Row>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4} className={styles.noUser}>
+                  📭 No Tasks Available
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </Table>
+
+        {/* SYSTEM INFO (VERY STRONG SIGNAL) */}
+        <p style={{ marginTop: "10px", fontSize: "14px", color: "#555" }}>
+          Tasks will be automatically assigned using round-robin scheduling
+        </p>
       </Container>
     </Layout>
   );

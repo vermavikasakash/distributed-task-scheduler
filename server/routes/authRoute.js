@@ -5,8 +5,12 @@ const {
   createTaskController,
   testController,
   getAgentsController,
-  getTasksController,
+  getAllTasksController,
+  getDashboardStatsController,
+  updateTaskStatusController,
+  getMyTasksController,
 } = require("../controllers/authController");
+
 const { requireSignIn, isAdmin } = require("../middlewares/authMiddleware");
 
 //router object
@@ -25,15 +29,25 @@ router.get("/user-auth", requireSignIn, (req, res) => {
 });
 
 // ! CREATE AGENTS  (METHOD POST)
-router.post("/createTask", createTaskController);
+router.post("/createTask", requireSignIn,createTaskController);
+
+// ! UPDATE TASK STATUS  (METHOD PATCH)
+router.patch("/task/:id/status",requireSignIn, updateTaskStatusController);
 
 // !protected roUtes demo
 router.get("/get", requireSignIn, isAdmin, testController);
 
 // ! GET AGENTS
-router.get("/getAgents", getAgentsController);
+router.get("/getAgents", requireSignIn, getAgentsController);
 
 // ! GET TASKS
-router.get("/getTasks", getTasksController);
+router.get("/getTasks", requireSignIn, isAdmin, getAllTasksController);
+
+// ! GET AGENT TASKS
+router.get("/myTasks", requireSignIn, getMyTasksController);
+
+
+// ! GET DASHBOARD STATS
+router.get("/dashboard-stats", getDashboardStatsController);
 
 module.exports = router;

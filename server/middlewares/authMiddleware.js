@@ -1,34 +1,49 @@
 const JWT = require("jsonwebtoken");
-const userModal = require("../models/userModel");
 
 //! protected routes 1st token base for login
 const requireSignIn = async (req, res, next) => {
   try {
-    const keyDecode = JWT.verify(
-      req.headers.authorization,
-      process.env.JWT_SECRET
-    );
-    req.user = keyDecode;
+    const authHeader = req.headers.authorization;
+
+    if (!authHeader) {
+      return res.status(401).json({
+        success: false,
+        message: "No token provided",
+      });
+    }
+
+    // "Bearer token"
+    const token = authHeader.split(" ")[1];
+
+    const decoded = JWT.verify(token, process.env.JWT_SECRET);
+
+    req.user = decoded; // {_id, role}
+
     next();
   } catch (error) {
-    console.log(error);
+    return res.status(401).json({
+      success: false,
+      message: "Invalid or expired token",
+    });
   }
 };
 
 // !  protected middleware for admin login
-const isAdmin = async (req, res, next) => {
+const isAdmin = (req, res, next) => {
   try {
-    const user = await userModal.findById(req.user._id);
-    if (user.role !== 1) {
-      return res
-        .status(401)
-        .send({ success: false, message: "Unauthorized access for admin" });
-    } else {
-      next();
+    if (req.user.role !== 1) {
+      return res.status(403).json({
+        success: false,
+        message: "Admin access required",
+      });
     }
+
+    next();
   } catch (error) {
-    console.log(error);
-    res.status(401).send({ success: false, message: " Error in admin", error });
+    return res.status(500).json({
+      success: false,
+      message: "Error in admin middleware",
+    });
   }
 };
 

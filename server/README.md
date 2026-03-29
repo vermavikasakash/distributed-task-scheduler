@@ -1,27 +1,76 @@
-# Getting Started with Backend
+# Distributed Task Scheduler (Backend)
 
-This project is made with Node,Express and Mongodb, database name is "machine-test"
+## Overview
+A backend system designed to handle bulk task ingestion and distribute tasks across agents using a **persistent round-robin scheduling algorithm**.
 
-## Available Scripts
+The system uses **asynchronous queue-based processing** to ensure non-blocking and scalable task handling.
 
- To start the database application you can run:
+---
 
-### `npm start`
+## Key Features
 
-# On Successful run
+- Persistent Round-Robin Scheduling (fair task distribution)
+- Asynchronous Queue-Based Processing (non-blocking requests)
+- Batch Processing for efficient database operations
+- Role-Based Authentication (Admin / Agent)
+- Bulk Task Upload via Excel
+- MVC Architecture
 
-in console we will get success massage.
+---
 
-# Project structure
-Backend follows the MVC pattern which basically contains some function for registration, login, create task, view task, create agent, view agent.
+## System Design
 
--1) config folder - it will contain function to connect to db
--2) controller folder - it will contain all the functions related with the routes
--3) helpers folder - it will contain function to encrypt the password, compare the password
--4) middlewares folder - not using(on application)
--5) models folder - it will contain function to connect with the collections in the db
--6) routes folder - it will contain the routes of application
--7) server.js - main application file to run the backend operation
-
+![Architecture Diagram](./architecture.png)
 
 
+### Flow
+Client → API → Queue → Worker → Round-Robin → Database
+
+### Explanation
+- Tasks are pushed into an in-memory queue
+- A background worker processes tasks in batches
+- Each task is assigned to agents in cyclic order
+- Assignment state is stored in MongoDB to maintain continuity across requests
+
+---
+
+## Tech Stack
+
+- Node.js
+- Express.js
+- MongoDB (Mongoose)
+
+---
+
+## Getting Started
+
+### Install dependencies
+    npm install
+
+### Setup environment variables
+Create `.env` file:
+- PORT=8080
+- MONGO_URI=your_mongodb_uri
+- DEV_MODE=development
+
+### Run server
+    npm start
+
+---
+
+## ⚠️ Limitations
+- Queue is currently **in-memory** (data loss on restart)
+- Can be extended using **Redis/Kafka**
+
+---
+
+## Future Improvements
+- Persistent queue (Redis)
+- Horizontal scaling with multiple workers
+- Retry mechanism for failed tasks
+---
+
+## Key Learnings
+- Designing async systems using queue + worker
+- Implementing fair scheduling using round-robin
+- Efficient bulk processing using batching    

@@ -1,17 +1,26 @@
 import React, { useEffect, useState } from "react";
 import { Container, Row, Col } from "react-bootstrap";
-import { getAgentsFunction } from "../../serviceApi/registerApi";
+import {
+  getAgentsFunction,
+  getDashboardStatsFunction,
+} from "../../serviceApi/registerApi";
 import styles from "./AgentCreation.module.css";
 import Layout from "../../components/Layout/Layout";
 
 const ViewAgent = () => {
   const [agents, setAgents] = useState([]);
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [statsResult, setStatsResult] = useState([]);
 
   const getAgents = async () => {
     let result = await getAgentsFunction();
+    let statsResult = await getDashboardStatsFunction();
     console.log("results", result);
     if (result?.status == 200) {
       setAgents(result?.data?.agent);
+    }
+    if (statsResult?.status == 200) {
+      setStatsResult(statsResult?.data?.data);
     }
   };
 
@@ -19,54 +28,65 @@ const ViewAgent = () => {
     getAgents();
   }, []);
 
+  const sortedAgents = [...agents].sort((a, b) => {
+    if (sortOrder === "asc") {
+      return a.name.localeCompare(b.name);
+    } else {
+      return b.name.localeCompare(a.name);
+    }
+  });
+
+  const handleSort = () => {
+    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+
   // ! JSX START
 
   return (
     <Layout>
-      {" "}
-      <p className={styles.top_heading}>View Agents</p>
-      <Container md>
-        <Row className={styles.top_row}>
-          <Col xs={3} className={styles.top_col}>
-            Agent Name
-          </Col>
-          <Col xs={3} className={styles.top_col}>
-            Email id
-          </Col>
-          <Col xs={3} className={styles.top_col}>
-            Mobile No.
-          </Col>
-          <Col xs={3} className={styles.top_col}>
-            Created on
-          </Col>
-        </Row>
+   
+      <h3 style={{ textAlign: "center", marginTop: "20px" }}>Agent Management</h3>
 
-        {/* //? AGENT LIST */}
-        {agents?.length !== 0 &&
-          agents?.map((data, i) => {
-            return (
-              <>
-                <Row
+      <Container>
+        <table className={styles.table}>
+          <thead>
+            <tr>Total Agents: {statsResult?.totalAgents || 0}</tr>
+          </thead>
+          <thead>
+            <tr className={styles.table_header}>
+              <th onClick={handleSort} style={{ cursor: "pointer" }}>
+                Agent Name {sortOrder === "asc" ? "⬆️" : "⬇️"}
+              </th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Created On</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {sortedAgents?.length === 0 ? (
+              <tr>
+                <td colSpan="4" className={styles.empty_state}>
+                  👤 No agents available. Add agents to get started
+                </td>
+              </tr>
+            ) : (
+              sortedAgents.map((data, i) => (
+                <tr
+                  key={i}
                   className={
-                    i % 2 == 0 ? styles.details_row : styles.details_row2
+                    i % 2 === 0 ? styles.details_row : styles.details_row2
                   }
                 >
-                  <Col xs={3} className={styles.top_col}>
-                    {data?.name}
-                  </Col>
-                  <Col xs={3} className={styles.top_col}>
-                    {data?.email}
-                  </Col>
-                  <Col xs={3} className={styles.top_col}>
-                    {data?.phone || "-"}
-                  </Col>
-                  <Col xs={3} className={styles.top_col}>
-                    {data?.createdAt}
-                  </Col>
-                </Row>
-              </>
-            );
-          })}
+                  <td>{data?.name}</td>
+                  <td>{data?.email}</td>
+                  <td>{data?.phone || "-"}</td>
+                  <td>{new Date(data?.createdAt).toLocaleDateString()}</td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
       </Container>
     </Layout>
   );
