@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container  } from "react-bootstrap";
 import {
   getAgentsFunction,
   getDashboardStatsFunction,
@@ -16,10 +16,10 @@ const ViewAgent = () => {
     let result = await getAgentsFunction();
     let statsResult = await getDashboardStatsFunction();
     console.log("results", result);
-    if (result?.status == 200) {
+    if (result?.status === 200) {
       setAgents(result?.data?.agent);
     }
-    if (statsResult?.status == 200) {
+    if (statsResult?.status === 200) {
       setStatsResult(statsResult?.data?.data);
     }
   };

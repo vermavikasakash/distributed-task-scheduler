@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, Row, Col } from "react-bootstrap";
+import { Container, } from "react-bootstrap";
 import {
   getAllTasksFunction,
   getAgentTasksFunction,
@@ -17,7 +17,7 @@ const ViewTask = () => {
 
   const getTasks = async () => {
     let result;
-    if (role == 1) {
+    if (role === 1) {
       result = await getAllTasksFunction();
     } else {
       result = await getAgentTasksFunction();
@@ -26,10 +26,10 @@ const ViewTask = () => {
     let statsResult = await getDashboardStatsFunction();
     console.log("statsResult", statsResult);
     console.log("results", result);
-    if (result?.status == 200) {
+    if (result?.status === 200) {
       setTask(result?.data?.task);
     }
-    if (statsResult?.status == 200) {
+    if (statsResult?.status === 200) {
       setStatsResult(statsResult?.data?.data);
     }
   };
@@ -41,7 +41,7 @@ const ViewTask = () => {
   // ? HANDLE COMPLETE TASK
   const handleComplete = async (id) => {
     const res = await patchAgentFunction(id);
-    if (res?.status == 200) {
+    if (res?.status === 200) {
       getTasks();
     }
   };
@@ -73,7 +73,7 @@ const ViewTask = () => {
           <thead>
             <tr>
               Total Tasks: {statsResult?.totalTasks || 0} &nbsp; &nbsp;
-              {role == 1 && `| Total Agents: ${statsResult?.totalAgents || 0}`}
+              {role === 1 && `| Total Agents: ${statsResult?.totalAgents || 0}`}
             </tr>
           </thead>
           <thead>
@@ -140,7 +140,7 @@ const ViewTask = () => {
                           Pending
                         </span>
 
-                        {role != 1 && (
+                        {role !== 1 && (
                           <button
                             onClick={() => handleComplete(data._id)}
                             style={{

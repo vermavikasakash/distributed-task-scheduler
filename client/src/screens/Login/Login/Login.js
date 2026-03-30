@@ -25,7 +25,7 @@ const Login = () => {
     };
     const result = await loginFunction(userInfo);
 
-    if (result.status == 200) {
+    if (result.status === 200) {
       if (result.data.status) {
         sessionStorage.setItem("role", JSON.stringify(result.data.user.role));
         sessionStorage.setItem("user", JSON.stringify(result.data));

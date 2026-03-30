@@ -21,7 +21,7 @@ const TaskCreation = () => {
 
   const getAgents = async () => {
     let statsResult = await getDashboardStatsFunction();
-    if (statsResult?.status == 200) {
+    if (statsResult?.status === 200) {
       setStatsResult(statsResult?.data?.data);
     }
   };
