@@ -3,7 +3,7 @@ const { Task, User, AssignmentState } = require("../models/userModel");
 
 const assignTasksToAgents = async () => {
   try {
-    const batch = getNextBatch(5); // process 5 at a time
+    const batch = getNextBatch(10); // process 10 at a time
 
     if (!batch.length) return;
 
@@ -42,4 +42,4 @@ const assignTasksToAgents = async () => {
   }
 };
 
-setInterval(assignTasksToAgents, 200); // runs every 200ms
+setInterval(assignTasksToAgents, 4000); // runs every 4000ms
