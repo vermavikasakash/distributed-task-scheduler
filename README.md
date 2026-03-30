@@ -20,7 +20,7 @@ The system uses **asynchronous queue-based processing** to ensure non-blocking a
 
 ## System Design
 
-![Architecture Diagram](./architecture.png)
+![Architecture Diagram](./server/architecture.png)
 
 
 ### Flow
