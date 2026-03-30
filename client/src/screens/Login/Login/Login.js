@@ -7,12 +7,14 @@ import { useNavigate } from "react-router-dom";
 import styles from "../../AgentScreen/AgentCreation.module.css";
 import Layout from "../../../components/Layout/Layout";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import Loader from "../../../components/loader/Loader";
 
 const Login = () => {
   // state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loader, setLoader] = useState(false);
 
   const navigate = useNavigate();
 
@@ -23,8 +25,9 @@ const Login = () => {
       email,
       password,
     };
+    setLoader(true);
     const result = await loginFunction(userInfo);
-
+    
     if (result.status === 200) {
       if (result.data.status) {
         sessionStorage.setItem("role", JSON.stringify(result.data.user.role));
@@ -34,10 +37,12 @@ const Login = () => {
         setTimeout(() => {
           navigate("/home-page");
         }, 1000);
+        setLoader(false);
       } else toast.error(result.data.message);
     } else {
       toast.error(result.response.data.message);
     }
+    setLoader(false);
   };
 
   return (
@@ -89,6 +94,7 @@ const Login = () => {
               </span>
             </div>
           </Form.Group>
+
           <div className={styles.login_bottom_btn}>
             <Button variant="primary" type="submit">
               Login
@@ -100,6 +106,33 @@ const Login = () => {
             Sign up
             </Button> */}
           </div>
+          {loader ? (
+            <Loader />
+          ) : (
+            <div style={{ marginTop: "15px", fontSize: "14px", color: "#555" }}>
+              <p>
+                <strong>Demo Credentials:</strong>
+              </p>
+              <p
+                style={{ cursor: "pointer", color: "#007bff" }}
+                onClick={() => {
+                  setEmail("admin@example.com");
+                  setPassword("password123");
+                }}
+              >
+                Admin: admin@example.com / password123
+              </p>
+              <p
+                style={{ cursor: "pointer", color: "#007bff" }}
+                onClick={() => {
+                  setEmail("agent@example.com");
+                  setPassword("password123");
+                }}
+              >
+                Admin: agent@example.com / password123
+              </p>
+            </div>
+          )}
         </Form>
       </div>
     </Layout>

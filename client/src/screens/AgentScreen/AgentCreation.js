@@ -9,6 +9,7 @@ import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { registerFunction } from "../../serviceApi/registerApi";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import Loader from "../../components/loader/Loader";
 
 const AgentCreation = () => {
   // state
@@ -17,6 +18,7 @@ const AgentCreation = () => {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loader, setLoader] = useState(false);
   const navigate = useNavigate();
 
   //form handler
@@ -28,6 +30,7 @@ const AgentCreation = () => {
       phone,
       password,
     };
+    setLoader(true);
     const result = await registerFunction(packageInfo);
 
     if (result.data.success) {
@@ -42,6 +45,7 @@ const AgentCreation = () => {
     } else {
       toast.error(result.data.message);
     }
+    setLoader(false);
   };
 
   // ! JSX START
@@ -120,6 +124,7 @@ const AgentCreation = () => {
           <Button variant="primary" type="submit">
             Create Agent
           </Button>
+          {loader && <Loader />}
         </Form>
       </div>
     </Layout>

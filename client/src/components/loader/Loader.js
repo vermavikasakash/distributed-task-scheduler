@@ -1,28 +1,31 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Spinner } from "react-bootstrap";
-import { useNavigate, useLocation } from "react-router-dom";
 
 const Loader = () => {
-  const [count, setCount] = useState(5);
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  useEffect(() => {
-    let interval = setInterval(() => {
-      setCount((preValue) => --preValue);
-    }, 1000);
-    count === 0 && navigate("/login", { state: location.pathname });
-    return () => clearInterval(interval);
-  }, [count, navigate, location]);
-  
-  //! JSX START
   return (
-    <div style={{ textAlign: "center" }}>
-      <h1>Redirecting to you {count} in seconds</h1>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        // height: "30vh",
+        flexDirection: "column",
+      }}
+    >
+      <Spinner
+        animation="border"
+        role="status"
+        style={{
+          width: "2rem",
+          height: "2rem",
+          color: "#1a472a", // green
+          borderWidth: "2px",
+        }}
+      />
 
-      <Spinner animation="border" role="status">
-        <span className="visually-hidden">Loading...</span>
-      </Spinner>
+      <p style={{ marginTop: "12px", color: "#555", fontSize: "14px" }}>
+       Please wait...
+      </p>
     </div>
   );
 };

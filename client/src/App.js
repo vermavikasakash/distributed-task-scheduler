@@ -5,7 +5,6 @@ import Login from "./screens/Login/Login/Login";
 import AgentCreation from "./screens/AgentScreen/AgentCreation";
 import ViewAgent from "./screens/AgentScreen/ViewAgent";
 import TaskCreation from "./screens/Tasks/TasksCreation";
-import ViewTask from "./screens/Tasks/ViewTask";
 
 function App() {
   return (

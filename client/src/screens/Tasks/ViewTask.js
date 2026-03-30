@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Container, } from "react-bootstrap";
+import { Container } from "react-bootstrap";
 import {
   getAllTasksFunction,
   getAgentTasksFunction,
@@ -7,17 +7,21 @@ import {
   patchAgentFunction,
 } from "../../serviceApi/registerApi";
 import styles from "../AgentScreen/AgentCreation.module.css";
+import { useCallback } from "react";
+import Loader from "../../components/loader/Loader";
 
 const ViewTask = () => {
   const [task, setTask] = useState([]);
   const [statsResult, setStatsResult] = useState([]);
   const [sortOrder, setSortOrder] = useState("asc");
+  const [loader, setLoader] = useState(false);
 
   let role = sessionStorage.getItem("role");
 
-  const getTasks = async () => {
+  const getTasks = useCallback(async () => {
+    setLoader(true);
     let result;
-    if (role === 1) {
+    if (role === "1") {
       result = await getAllTasksFunction();
     } else {
       result = await getAgentTasksFunction();
@@ -32,11 +36,12 @@ const ViewTask = () => {
     if (statsResult?.status === 200) {
       setStatsResult(statsResult?.data?.data);
     }
-  };
+    setLoader(false);
+  }, [role]);
 
   useEffect(() => {
     getTasks();
-  }, []);
+  }, [getTasks]);
 
   // ? HANDLE COMPLETE TASK
   const handleComplete = async (id) => {
@@ -71,10 +76,9 @@ const ViewTask = () => {
         {/* TABLE */}
         <table className={styles.table}>
           <thead>
-            <tr>
-              Total Tasks: {statsResult?.totalTasks || 0} &nbsp; &nbsp;
-              {role === 1 && `| Total Agents: ${statsResult?.totalAgents || 0}`}
-            </tr>
+            {role === "1" && (
+              <tr>Total Tasks: {statsResult?.totalTasks || 0} &nbsp; &nbsp;</tr>
+            )}
           </thead>
           <thead>
             <tr className={styles.table_header}>
@@ -87,83 +91,95 @@ const ViewTask = () => {
               </th>
             </tr>
           </thead>
-
-          <tbody>
-            {sortedTasks?.length === 0 ? (
+          {loader ? (
+            <tbody>
               <tr>
-                <td colSpan="4" className={styles.empty_state}>
-                  📭 No tasks available yet. Upload tasks to begin assignment
+                <td
+                  colSpan="5"
+                  style={{ textAlign: "center", padding: "40px" }}
+                >
+                  <Loader />
                 </td>
               </tr>
-            ) : (
-              sortedTasks.map((data, i) => (
-                <tr
-                  key={i}
-                  className={
-                    i % 2 === 0 ? styles.details_row : styles.details_row2
-                  }
-                >
-                  <td>{data?.firstName}</td>
-                  <td>{data?.phone || "-"}</td>
-                  <td>{data?.notes}</td>
-                  <td>
-                    {data?.status === "completed" ? (
-                      <span
-                        style={{
-                          backgroundColor: "#d4edda",
-                          color: "#155724",
-                          padding: "4px 10px",
-                          borderRadius: "12px",
-                          fontSize: "12px",
-                          fontWeight: "500",
-                        }}
-                      >
-                        Done
-                      </span>
-                    ) : (
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "10px",
-                        }}
-                      >
+            </tbody>
+          ) : (
+            <tbody>
+              {sortedTasks?.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className={styles.empty_state}>
+                    📭 No tasks available yet. Upload tasks to begin assignment
+                  </td>
+                </tr>
+              ) : (
+                sortedTasks.map((data, i) => (
+                  <tr
+                    key={i}
+                    className={
+                      i % 2 === 0 ? styles.details_row : styles.details_row2
+                    }
+                  >
+                    <td>{data?.firstName}</td>
+                    <td>{data?.phone || "-"}</td>
+                    <td>{data?.notes}</td>
+                    <td>
+                      {data?.status === "completed" ? (
                         <span
                           style={{
-                            backgroundColor: "#fff3cd",
-                            color: "#856404",
+                            backgroundColor: "#d4edda",
+                            color: "#155724",
                             padding: "4px 10px",
                             borderRadius: "12px",
                             fontSize: "12px",
+                            fontWeight: "500",
                           }}
                         >
-                          Pending
+                          Done
                         </span>
-
-                        {role !== 1 && (
-                          <button
-                            onClick={() => handleComplete(data._id)}
+                      ) : (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: "10px",
+                          }}
+                        >
+                          <span
                             style={{
-                              padding: "4px 8px",
-                              backgroundColor: "#198754",
-                              color: "white",
-                              border: "none",
-                              borderRadius: "4px",
-                              cursor: "pointer",
+                              backgroundColor: "#fff3cd",
+                              color: "#856404",
+                              padding: "4px 10px",
+                              borderRadius: "12px",
                               fontSize: "12px",
                             }}
                           >
-                            Mark Done
-                          </button>
-                        )}
-                      </div>
-                    )}
-                  </td>
-                  <td>{data?.agentName}</td>
-                </tr>
-              ))
-            )}
-          </tbody>
+                            Pending
+                          </span>
+
+                          {role !== "1" && (
+                            <button
+                              onClick={() => handleComplete(data._id)}
+                              style={{
+                                padding: "4px 8px",
+                                backgroundColor: "#198754",
+                                color: "white",
+                                border: "none",
+                                borderRadius: "4px",
+                                cursor: "pointer",
+                                fontSize: "12px",
+                              }}
+                            >
+                              Mark Done
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </td>
+                    <td>{data?.agentName}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          )}
         </table>
       </Container>
     </>

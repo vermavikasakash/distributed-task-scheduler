@@ -17,7 +17,7 @@ const HomePage = () => {
         <Link to={"/view-agent"} className={styles.activeTab}>
           Agents 
         </Link>
-        {role === 1 && (
+        {role === "1" && (
           <>
             <Link to={"/create-agent"} className={styles.activeTab}>
               Add Agent
