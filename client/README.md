@@ -1,58 +1,50 @@
-# Task Scheduler Frontend
+
+# Task Scheduler Dashboard (Frontend)
+A real-time dashboard to monitor task execution, retries, and system behavior in a distributed task processing system.
+
+---
 
 ## Overview
-Frontend application for managing agents and tasks in the Distributed Task Scheduler system.
+
+This UI visualizes task lifecycle, retry behavior, and system metrics for better observability of backend processing.
 
 ---
 
 ## Features
 
-- Admin & Agent authentication
-- Agent management (create/view)
-- Bulk task upload via Excel
-- Task dashboard for agents and admin
-- Integration with backend APIs
+- View all tasks with status:
+  - Pending
+  - Processing
+  - Completed
+  - Failed
+- Retry count tracking
+- Real-time task updates
+- Dashboard statistics:
+  - Total tasks
+  - Completed / Failed / Pending
+- Clean tabular UI for monitoring
 
 ---
 
-## Tech Stack
+## 🛠 Tech Stack
+
 - React.js
 - Axios
+- Bootstrap 
 
 ---
+## UI Highlights
+Task table with:
+Status
+Retry count
+Timestamps
+Dashboard stats for quick insights
+Helps debug retry/failure behavior
 
 ## Getting Started
 
-### Install dependencies
-    npm start
----
-
-## Backend Dependency
-
-This frontend interacts with backend APIs: /api/v1/auth/*
-
-Ensure backend server is running before starting frontend.
-
----
-
-## Notes
-
-- Task assignment is handled entirely in the backend
-- Frontend only sends raw task data (no distribution logic)
-
-
-## 🔐 Demo Credentials
-
-Use the following credentials for testing:
-
-Admin:
-email: admin@example.com  
-password: password123  
-
-Agent:
-email: agent@example.com  
-password: password123  
-
-> These are sample credentials for demo purposes.
-
-
+### 1. Install dependencies
+```bash
+npm install
+## 2. Run app
+npm start

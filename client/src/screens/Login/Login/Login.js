@@ -111,7 +111,7 @@ const Login = () => {
               </div>
             ) : (
               <p className={styles.helperText}>
-                admin@example.com / password123 (or your configured admin credentials)
+                admin@example.com / password123 (configured admin credentials)
               </p>
             )}
           </Form>

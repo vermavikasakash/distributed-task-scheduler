@@ -38,7 +38,7 @@ const ViewTask = () => {
   useEffect(() => {
     getTasks(true);
 
-    const intervalId = setInterval(() => {
+    const intervalId = setInterval (() => {
       getTasks(false);
     }, 5000);
 
