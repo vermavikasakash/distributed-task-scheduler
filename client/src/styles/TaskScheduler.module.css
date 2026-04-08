@@ -1,0 +1,338 @@
+.pageIntro {
+  max-width: 1080px;
+  margin: 2rem auto 0;
+  padding: 0 1rem;
+}
+
+.dashboardIntro {
+  max-width: 1080px;
+  margin: 2rem auto 0;
+  padding: 0 1rem;
+}
+
+.eyebrow {
+  margin-bottom: 0.5rem;
+  color: #2f6b42;
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pageTitle {
+  color: #16351f;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0.75rem;
+}
+
+.sectionTitle {
+  color: #16351f;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.pageSubtitle {
+  color: #53645a;
+  font-size: 1rem;
+  line-height: 1.65;
+  margin-bottom: 0;
+}
+
+.actionRow {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.actionCard,
+.infoCard {
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 180px;
+  padding: 1.5rem;
+}
+
+.actionCard {
+  background: linear-gradient(145deg, #1a472a, #2f6b42);
+  box-shadow: 0 18px 38px rgba(26, 71, 42, 0.18);
+  color: #fff;
+  text-decoration: none;
+}
+
+.actionCard:hover {
+  color: #fff;
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+}
+
+.infoCard {
+  background: linear-gradient(145deg, #f3f8f5, #e3efe6);
+  border: 1px solid #d8e7db;
+  color: #1f3d29;
+}
+
+.actionCardTitle {
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.actionCardDescription {
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.tabDiv {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 2rem auto 0;
+  max-width: 1080px;
+  padding: 0 1rem;
+}
+
+.activeTab,
+.tabLink {
+  border-radius: 999px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.65rem 1rem;
+  text-decoration: none;
+}
+
+.activeTab {
+  background-color: #1a472a;
+  color: #fff;
+}
+
+.tabLink {
+  background-color: #e8f2eb;
+  color: #1a472a;
+}
+
+.tabLink:hover {
+  color: #1a472a;
+}
+
+.formShell {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  min-height: 68vh;
+  padding: 1rem;
+}
+
+.formCard {
+  background: #fff;
+  border: 1px solid #d8e7db;
+  border-radius: 20px;
+  box-shadow: 0 20px 45px rgba(20, 45, 27, 0.08);
+  padding: 2rem;
+  width: min(100%, 460px);
+}
+
+.formTitle {
+  color: #16351f;
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.formSubtitle {
+  color: #59695f;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  margin-bottom: 1.5rem;
+}
+
+.loginActions {
+  display: flex;
+  justify-content: flex-start;
+  margin-top: 1rem;
+}
+
+.helperText {
+  color: #59695f;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  margin-top: 1rem;
+}
+
+.uploadPanel,
+.tableWrapper,
+.summaryBar {
+  max-width: 1080px;
+  padding: 0 1rem;
+}
+
+.uploadPanel,
+.tableWrapper {
+  margin: 1.5rem auto 0;
+}
+
+.summaryBar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  margin: 1.5rem auto 0;
+}
+
+.uploadToolbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.summaryCard {
+  background: linear-gradient(145deg, #f5faf6, #eaf3ed);
+  border: 1px solid #d8e7db;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 200px;
+  padding: 1rem 1.25rem;
+}
+
+.summaryLabel {
+  color: #65756b;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.summaryValue {
+  color: #16351f;
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.sortButton {
+  background: transparent;
+  border: 1px solid #1a472a;
+  border-radius: 999px;
+  color: #1a472a;
+  font-size: 0.95rem;
+  font-weight: 500;
+  padding: 0.65rem 1rem;
+}
+
+.uploadFileDiv {
+  align-items: center;
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.uploadFileText {
+  color: #1f3d29;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+.fileInput {
+  background: #f8fbf9;
+  border: 1px dashed #8aa391;
+  border-radius: 14px;
+  padding: 0.75rem;
+  width: 100%;
+}
+
+.metaText {
+  color: #617167;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.table {
+  background: #fff;
+  border-collapse: collapse;
+  border-radius: 18px;
+  box-shadow: 0 18px 35px rgba(18, 41, 24, 0.06);
+  overflow: hidden;
+  width: 100%;
+}
+
+.tableHeader {
+  background-color: #1f4d2e;
+  color: #fff;
+}
+
+.table th,
+.table td {
+  padding: 0.95rem 1rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.detailsRow {
+  background-color: #f9fbfa;
+  border-bottom: 1px solid #e6efe8;
+}
+
+.detailsRowAlt {
+  background-color: #ffffff;
+  border-bottom: 1px solid #e6efe8;
+}
+
+.statusPill {
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.35rem 0.7rem;
+  text-transform: capitalize;
+}
+
+.statusCompleted {
+  background: #dff4e4;
+  color: #1c6331;
+}
+
+.statusPending {
+  background: #fff3cd;
+  color: #8a6705;
+}
+
+.statusFailed {
+  background: #f8d7da;
+  color: #842029;
+}
+
+.emptyState,
+.noUser {
+  color: #617167;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+@media (max-width: 768px) {
+  .formCard {
+    padding: 1.5rem;
+  }
+
+  .summaryBar,
+  .uploadToolbar,
+  .uploadFileDiv {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .table th,
+  .table td {
+    font-size: 0.92rem;
+    padding: 0.8rem;
+  }
+}

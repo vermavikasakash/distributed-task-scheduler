@@ -1,17 +1,16 @@
 import React from "react";
-import { Link } from "react-router-dom";
 
 const Footer = () => {
+  const year = new Date().getFullYear();
+
   return (
-    <div className="footer">
-      <h4 className="text-center">© 2026 Task Scheduler</h4>
-      <p className="text-center mt-3">
-        <Link to="/about">About</Link>
-        |<Link to="/contact">Contact</Link>|
-        <Link to="/policy">Policy</Link>
+    <footer className="footer">
+      <h4 className="text-center mb-2">© {year} Task Scheduler</h4>
+      <p className="text-center mb-0">
+        Admin console for uploading task batches and monitoring worker results.
       </p>
-    </div>
-  ); 
+    </footer>
+  );
 };
 
 export default Footer;

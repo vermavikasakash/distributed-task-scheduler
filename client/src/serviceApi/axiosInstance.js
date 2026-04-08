@@ -4,7 +4,6 @@ const axiosInstance = axios.create({
   baseURL: process.env.REACT_APP_API,
 });
 
-//!  Request Interceptor (attach token)
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = sessionStorage.getItem("token");
@@ -18,14 +17,17 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error),
 );
 
-//!  Optional: Response Interceptor (handle 401)
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error?.response?.status === 401) {
+    if ([401, 403].includes(error?.response?.status)) {
       sessionStorage.clear();
-      window.location.href = "/"; // redirect to login
+
+      if (window.location.pathname !== "/") {
+        window.location.href = "/";
+      }
     }
+
     return Promise.reject(error);
   },
 );

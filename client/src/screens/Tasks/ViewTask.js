@@ -1,187 +1,170 @@
-import React, { useEffect, useState } from "react";
-import { Container } from "react-bootstrap";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getAllTasksFunction,
-  getAgentTasksFunction,
   getDashboardStatsFunction,
-  patchAgentFunction,
 } from "../../serviceApi/registerApi";
-import styles from "../AgentScreen/AgentCreation.module.css";
-import { useCallback } from "react";
 import Loader from "../../components/loader/Loader";
+import styles from "../../styles/TaskScheduler.module.css";
 
 const ViewTask = () => {
   const [task, setTask] = useState([]);
-  const [statsResult, setStatsResult] = useState([]);
-  const [sortOrder, setSortOrder] = useState("asc");
+  const [statsResult, setStatsResult] = useState({});
+  const [sortOrder, setSortOrder] = useState("desc");
   const [loader, setLoader] = useState(false);
 
-  let role = sessionStorage.getItem("role");
-
-  const getTasks = useCallback(async () => {
-    setLoader(true);
-    let result;
-    if (role === "1") {
-      result = await getAllTasksFunction();
-    } else {
-      result = await getAgentTasksFunction();
+  const getTasks = useCallback(async (showLoader = false) => {
+    if (showLoader) {
+      setLoader(true);
     }
 
-    let statsResult = await getDashboardStatsFunction();
-    console.log("statsResult", statsResult);
-    console.log("results", result);
-    if (result?.status === 200) {
-      setTask(result?.data?.task);
+    const [taskResponse, statsResponse] = await Promise.all([
+      getAllTasksFunction(),
+      getDashboardStatsFunction(),
+    ]);
+
+    if (taskResponse?.status === 200) {
+      setTask(taskResponse?.data?.task || []);
     }
-    if (statsResult?.status === 200) {
-      setStatsResult(statsResult?.data?.data);
+
+    if (statsResponse?.status === 200) {
+      setStatsResult(statsResponse?.data?.data || {});
     }
-    setLoader(false);
-  }, [role]);
+
+    if (showLoader) {
+      setLoader(false);
+    }
+  }, []);
 
   useEffect(() => {
-    getTasks();
+    getTasks(true);
+
+    const intervalId = setInterval(() => {
+      getTasks(false);
+    }, 5000);
+
+    return () => clearInterval(intervalId);
   }, [getTasks]);
 
-  // ? HANDLE COMPLETE TASK
-  const handleComplete = async (id) => {
-    const res = await patchAgentFunction(id);
-    if (res?.status === 200) {
-      getTasks();
+  const sortedTasks = useMemo(
+    () =>
+      [...task].sort((a, b) => {
+        const firstDate = new Date(a?.createdAt || 0).getTime();
+        const secondDate = new Date(b?.createdAt || 0).getTime();
+
+        return sortOrder === "asc"
+          ? firstDate - secondDate
+          : secondDate - firstDate;
+      }),
+    [sortOrder, task],
+  );
+
+  const formatDate = (value) => {
+    if (!value) {
+      return "-";
     }
+
+    return new Date(value).toLocaleString();
   };
 
-  const sortedTasks = [...task].sort((a, b) => {
-    if (sortOrder === "asc") {
-      return a.agentName.localeCompare(b.agentName);
-    } else {
-      return b.agentName.localeCompare(a.agentName);
+  const getStatusClassName = (status) => {
+    if (status === "completed") {
+      return styles.statusCompleted;
     }
-  });
 
-  const handleSort = () => {
-    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
+    if (status === "failed") {
+      return styles.statusFailed;
+    }
+
+    return styles.statusPending;
   };
-
-  // ! JSX START
 
   return (
     <>
-      <h3 style={{ textAlign: "center", marginTop: "20px" }}>Task Dashboard</h3>
-      <h6 style={{ textAlign: "center" }}>
-        Manage and monitor task assignments
-      </h6>
+      <section className={styles.dashboardIntro}>
+        <h2 className={styles.sectionTitle}>Task Dashboard</h2>
+        <p className={styles.pageSubtitle}>
+          New uploads are queued immediately. This table refreshes every 5
+          seconds so you can watch completed and failed jobs settle over time.
+        </p>
+      </section>
 
-      <Container>
-        {/* TABLE */}
+      <div className={styles.summaryBar}>
+        <div className={styles.summaryCard}>
+          <span className={styles.summaryLabel}>Recorded Tasks</span>
+          <strong className={styles.summaryValue}>
+            {statsResult?.totalTasks ?? task.length}
+          </strong>
+        </div>
+
+        <button
+          type="button"
+          className={styles.sortButton}
+          onClick={() =>
+            setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
+          }
+        >
+          Sort by {sortOrder === "desc" ? "newest" : "oldest"} first
+        </button>
+      </div>
+
+      <div className={styles.tableWrapper}>
         <table className={styles.table}>
           <thead>
-            {role === "1" && (
-              <tr>Total Tasks: {statsResult?.totalTasks || 0} &nbsp; &nbsp;</tr>
-            )}
-          </thead>
-          <thead>
-            <tr className={styles.table_header}>
+            <tr className={styles.tableHeader}>
               <th>Name</th>
               <th>Phone</th>
               <th>Task Description</th>
-              <th>Task Status</th>
-              <th onClick={handleSort} style={{ cursor: "pointer" }}>
-                Assigned Agent {sortOrder === "asc" ? "⬆️" : "⬇️"}
-              </th>
+              <th>Status</th>
+              <th>Retries</th>
+              <th>Internal State</th>
+              <th>Created On</th>
             </tr>
           </thead>
+
           {loader ? (
             <tbody>
               <tr>
-                <td
-                  colSpan="5"
-                  style={{ textAlign: "center", padding: "40px" }}
-                >
+                <td colSpan="7" style={{ textAlign: "center", padding: "40px" }}>
                   <Loader />
                 </td>
               </tr>
             </tbody>
           ) : (
             <tbody>
-              {sortedTasks?.length === 0 ? (
+              {sortedTasks.length === 0 ? (
                 <tr>
-                  <td colSpan="4" className={styles.empty_state}>
-                    📭 No tasks available yet. Upload tasks to begin assignment
+                  <td colSpan="7" className={styles.emptyState}>
+                    No tasks available yet. Upload a batch to start the scheduler.
                   </td>
                 </tr>
               ) : (
-                sortedTasks.map((data, i) => (
+                sortedTasks.map((data, index) => (
                   <tr
-                    key={i}
+                    key={data?._id || data?.taskId || index}
                     className={
-                      i % 2 === 0 ? styles.details_row : styles.details_row2
+                      index % 2 === 0 ? styles.detailsRow : styles.detailsRowAlt
                     }
                   >
-                    <td>{data?.firstName}</td>
+                    <td>{data?.firstName || "-"}</td>
                     <td>{data?.phone || "-"}</td>
-                    <td>{data?.notes}</td>
+                    <td>{data?.notes || "-"}</td>
                     <td>
-                      {data?.status === "completed" ? (
-                        <span
-                          style={{
-                            backgroundColor: "#d4edda",
-                            color: "#155724",
-                            padding: "4px 10px",
-                            borderRadius: "12px",
-                            fontSize: "12px",
-                            fontWeight: "500",
-                          }}
-                        >
-                          Done
-                        </span>
-                      ) : (
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            gap: "10px",
-                          }}
-                        >
-                          <span
-                            style={{
-                              backgroundColor: "#fff3cd",
-                              color: "#856404",
-                              padding: "4px 10px",
-                              borderRadius: "12px",
-                              fontSize: "12px",
-                            }}
-                          >
-                            Pending
-                          </span>
-
-                          {role !== "1" && (
-                            <button
-                              onClick={() => handleComplete(data._id)}
-                              style={{
-                                padding: "4px 8px",
-                                backgroundColor: "#198754",
-                                color: "white",
-                                border: "none",
-                                borderRadius: "4px",
-                                cursor: "pointer",
-                                fontSize: "12px",
-                              }}
-                            >
-                              Mark Done
-                            </button>
-                          )}
-                        </div>
-                      )}
+                      <span
+                        className={`${styles.statusPill} ${getStatusClassName(data?.status)}`}
+                      >
+                        {data?.status || "pending"}
+                      </span>
                     </td>
-                    <td>{data?.agentName}</td>
+                    <td>{data?.retryCount ?? 0}</td>
+                    <td>{data?.internalStatus || "-"}</td>
+                    <td>{formatDate(data?.createdAt)}</td>
                   </tr>
                 ))
               )}
             </tbody>
           )}
         </table>
-      </Container>
+      </div>
     </>
   );
 };

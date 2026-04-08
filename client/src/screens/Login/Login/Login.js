@@ -2,15 +2,14 @@ import React, { useState } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { toast } from "react-toastify";
-import { loginFunction } from "../../../serviceApi/registerApi";
 import { useNavigate } from "react-router-dom";
-import styles from "../../AgentScreen/AgentCreation.module.css";
-import Layout from "../../../components/Layout/Layout";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import Layout from "../../../components/Layout/Layout";
 import Loader from "../../../components/loader/Loader";
+import { loginFunction } from "../../../serviceApi/registerApi";
+import styles from "../../../styles/TaskScheduler.module.css";
 
 const Login = () => {
-  // state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -18,123 +17,106 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  //form handler
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const userInfo = {
+    setLoader(true);
+
+    const result = await loginFunction({
       email,
       password,
-    };
-    setLoader(true);
-    const result = await loginFunction(userInfo);
-    
-    if (result.status === 200) {
-      if (result.data.status) {
-        sessionStorage.setItem("role", JSON.stringify(result.data.user.role));
-        sessionStorage.setItem("user", JSON.stringify(result.data));
-        sessionStorage.setItem("token", result.data.token);
-        toast.success(result.data.message);
-        setTimeout(() => {
-          navigate("/home-page");
-        }, 1000);
+    });
+
+    if (result?.status === 200 && result?.data?.status) {
+      if (result?.data?.user?.role !== 1) {
+        sessionStorage.clear();
+        toast.error("Admin access required for this scheduler");
         setLoader(false);
-      } else toast.error(result.data.message);
+        return;
+      }
+
+      sessionStorage.setItem("user", JSON.stringify(result.data.user));
+      sessionStorage.setItem("token", result.data.token);
+      toast.success(result.data.message);
+
+      setTimeout(() => {
+        navigate("/home-page");
+      }, 800);
     } else {
-      toast.error(result.response.data.message);
+      toast.error(result?.data?.message || "Unable to sign in");
     }
+
     setLoader(false);
   };
 
   return (
     <Layout>
-      <h3 style={{ textAlign: "center", marginTop: "20px" }}>
-        Welcome to Task Scheduler
-      </h3>
-      <h6 style={{ textAlign: "center" }}>
-        Streamline task distribution with intelligent scheduling
-      </h6>
-      <div className={styles.register}>
-        <h1>Sign In</h1>
-        <Form style={{ width: "30%" }} onSubmit={(e) => handleSubmit(e)}>
-          <Form.Group className="mb-3" controlId="formBasicEmail">
-            <Form.Label>Email</Form.Label>
-            <Form.Control
-              type="email"
-              placeholder="Please Enter Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </Form.Group>
+      <section className={styles.formShell}>
+        <div className={styles.formCard}>
+          <p className={styles.eyebrow}>Scheduler Console</p>
+          <h1 className={styles.formTitle}>Admin Sign In</h1>
+          <p className={styles.formSubtitle}>
+            Use the admin account configured in backend to
+            upload spreadsheets and monitor background processing.
+          </p>
 
-          <Form.Group className="mb-3" controlId="formBasicPassword">
-            <Form.Label>Password</Form.Label>
-
-            <div style={{ position: "relative" }}>
+          <Form onSubmit={handleSubmit}>
+            <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Label>Email</Form.Label>
               <Form.Control
-                type={showPassword ? "text" : "password"}
-                placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                type="email"
+                placeholder="Enter admin email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 required
               />
+            </Form.Group>
 
-              <span
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: "absolute",
-                  right: "10px",
-                  top: "50%",
-                  transform: "translateY(-50%)",
-                  cursor: "pointer",
-                  fontSize: "14px",
-                }}
-              >
-                {showPassword ? <FaEyeSlash /> : <FaEye />}
-              </span>
-            </div>
-          </Form.Group>
+            <Form.Group className="mb-3" controlId="formBasicPassword">
+              <Form.Label>Password</Form.Label>
 
-          <div className={styles.login_bottom_btn}>
-            <Button variant="primary" type="submit">
-              Login
-            </Button>
-            {/* <Button
-            variant="primary"
-            onClick={() => navigate("/register")}
-          >
-            Sign up
-            </Button> */}
-          </div>
-          {loader ? (
-            <Loader />
-          ) : (
-            <div style={{ marginTop: "15px", fontSize: "14px", color: "#555" }}>
-              <p>
-                <strong>Demo Credentials:</strong>
-              </p>
-              <p
-                style={{ cursor: "pointer", color: "#007bff" }}
-                onClick={() => {
-                  setEmail("admin@example.com");
-                  setPassword("password123");
-                }}
-              >
-                Admin: admin@example.com / password123
-              </p>
-              <p
-                style={{ cursor: "pointer", color: "#007bff" }}
-                onClick={() => {
-                  setEmail("agent@example.com");
-                  setPassword("password123");
-                }}
-              >
-                Admin: agent@example.com / password123
-              </p>
+              <div style={{ position: "relative" }}>
+                <Form.Control
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+
+                <span
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: "absolute",
+                    right: "10px",
+                    top: "50%",
+                    transform: "translateY(-50%)",
+                    cursor: "pointer",
+                    fontSize: "14px",
+                  }}
+                >
+                  {showPassword ? <FaEyeSlash /> : <FaEye />}
+                </span>
+              </div>
+            </Form.Group>
+
+            <div className={styles.loginActions}>
+              <Button variant="success" type="submit" disabled={loader}>
+                {loader ? "Signing In..." : "Sign In"}
+              </Button>
             </div>
-          )}
-        </Form>
-      </div>
+
+            {loader ? (
+              <div style={{ marginTop: "20px" }}>
+                <Loader />
+              </div>
+            ) : (
+              <p className={styles.helperText}>
+                admin@example.com / password123 (or your configured admin credentials)
+              </p>
+            )}
+          </Form>
+        </div>
+      </section>
     </Layout>
   );
 };
