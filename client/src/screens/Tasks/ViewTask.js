@@ -67,15 +67,29 @@ const ViewTask = () => {
   };
 
   const getStatusClassName = (status) => {
-    if (status === "completed") {
+    const normalizedStatus = String(status || "").toLowerCase();
+
+    if (normalizedStatus === "completed") {
       return styles.statusCompleted;
     }
 
-    if (status === "failed") {
+    if (normalizedStatus === "failed") {
       return styles.statusFailed;
     }
 
-    return styles.statusPending;
+    if (normalizedStatus === "processing") {
+      return styles.statusProcessing;
+    }
+
+    if (normalizedStatus === "retry") {
+      return styles.statusRetry;
+    }
+
+    if (normalizedStatus === "assigned") {
+      return styles.statusAssigned;
+    }
+
+    return styles.statusQueued;
   };
 
   return (
@@ -84,7 +98,8 @@ const ViewTask = () => {
         <h2 className={styles.sectionTitle}>Task Dashboard</h2>
         <p className={styles.pageSubtitle}>
           New uploads are queued immediately. This table refreshes every 5
-          seconds so you can watch completed and failed jobs settle over time.
+          seconds so you can watch queued, processing, retrying, completed, and
+          failed jobs settle over time.
         </p>
       </section>
 
@@ -114,9 +129,8 @@ const ViewTask = () => {
               <th>Name</th>
               <th>Phone</th>
               <th>Task Description</th>
-              <th>Status</th>
+              <th>Current Status</th>
               <th>Retries</th>
-              <th>Internal State</th>
               <th>Created On</th>
             </tr>
           </thead>
@@ -124,7 +138,7 @@ const ViewTask = () => {
           {loader ? (
             <tbody>
               <tr>
-                <td colSpan="7" style={{ textAlign: "center", padding: "40px" }}>
+                <td colSpan="6" style={{ textAlign: "center", padding: "40px" }}>
                   <Loader />
                 </td>
               </tr>
@@ -133,7 +147,7 @@ const ViewTask = () => {
             <tbody>
               {sortedTasks.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className={styles.emptyState}>
+                  <td colSpan="6" className={styles.emptyState}>
                     No tasks available yet. Upload a batch to start the scheduler.
                   </td>
                 </tr>
@@ -150,13 +164,12 @@ const ViewTask = () => {
                     <td>{data?.notes || "-"}</td>
                     <td>
                       <span
-                        className={`${styles.statusPill} ${getStatusClassName(data?.status)}`}
+                        className={`${styles.statusPill} ${getStatusClassName(data?.currentStatus)}`}
                       >
-                        {data?.status || "pending"}
+                        {data?.currentStatus || "QUEUED"}
                       </span>
                     </td>
                     <td>{data?.retryCount ?? 0}</td>
-                    <td>{data?.internalStatus || "-"}</td>
                     <td>{formatDate(data?.createdAt)}</td>
                   </tr>
                 ))

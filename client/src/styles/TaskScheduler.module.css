@@ -301,7 +301,22 @@
   color: #1c6331;
 }
 
-.statusPending {
+.statusQueued {
+  background: #e8f2eb;
+  color: #1a472a;
+}
+
+.statusAssigned {
+  background: #ece7ff;
+  color: #4b3fb3;
+}
+
+.statusProcessing {
+  background: #fff0d9;
+  color: #a15c00;
+}
+
+.statusRetry {
   background: #fff3cd;
   color: #8a6705;
 }
