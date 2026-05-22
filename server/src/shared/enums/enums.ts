@@ -7,8 +7,3 @@ export enum TaskStatus {
     FAILED = "FAILED",
     RETRY = "RETRY"
 }
-
-export enum WorkerStatus {
-    IDLE = "IDLE",
-    BUSY = "BUSY"
-}

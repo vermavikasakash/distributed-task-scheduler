@@ -6,7 +6,7 @@ import { RoundRobinStrategy } from "./AssignmentStrategy";
 
 export class Scheduler {
   private strategy = new RoundRobinStrategy();
-  private intervalId: NodeJS.Timeout | null = null;
+  private intervalId: ReturnType<typeof setInterval> | null = null;
 
   constructor(
     private queue: TaskQueue,

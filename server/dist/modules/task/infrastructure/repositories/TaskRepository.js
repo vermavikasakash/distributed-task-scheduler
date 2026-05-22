@@ -13,24 +13,6 @@ class TaskRepository {
         }
         return null;
     }
-    async saveTasks(tasks) {
-        try {
-            await TaskModel_1.TaskModel.insertMany(tasks);
-        }
-        catch (error) {
-            console.error("Error saving tasks:", error);
-            throw error;
-        }
-    }
-    async createTask(task) {
-        try {
-            return await TaskModel_1.TaskModel.create(task);
-        }
-        catch (error) {
-            console.error("Error creating task:", error);
-            throw error;
-        }
-    }
     async createTaskRecord(task) {
         const terminalStatus = this.getTerminalStatus(task);
         await TaskModel_1.TaskModel.findOneAndUpdate({ taskId: task.id }, {
@@ -51,7 +33,7 @@ class TaskRepository {
     async countTasks() {
         return TaskModel_1.TaskModel.countDocuments();
     }
-    async getTasksByTaskId(taskId) {
+    async getTaskById(taskId) {
         return TaskModel_1.TaskModel.findById(taskId);
     }
 }

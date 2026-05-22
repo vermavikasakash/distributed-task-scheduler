@@ -5,19 +5,37 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isAdmin = exports.requireSignIn = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const UserRepository_1 = require("../../infrastructure/repositories/UserRepository");
+const userRepo = new UserRepository_1.UserRepository();
 const requireSignIn = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
-        if (!authHeader) {
-            return res.status(401).json({ message: "No token provided" });
+        if (!(authHeader === null || authHeader === void 0 ? void 0 : authHeader.startsWith("Bearer "))) {
+            return res.status(401).json({
+                message: "Invalid authorization format",
+            });
         }
         const token = authHeader.split(" ")[1];
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+        if (!decoded._id || decoded.role === undefined) {
+            return res.status(401).json({
+                message: "Invalid token payload",
+            });
+        }
+        const user = await userRepo.getUserById(decoded._id);
+        if (!user) {
+            return res.status(401).json({
+                message: "User not found",
+            });
+        }
         req.user = decoded;
-        return next();
+        next();
     }
-    catch (_a) {
-        return res.status(401).json({ message: "Invalid token" });
+    catch (error) {
+        console.error(error);
+        return res.status(401).json({
+            message: "Invalid token",
+        });
     }
 };
 exports.requireSignIn = requireSignIn;

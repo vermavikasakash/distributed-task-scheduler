@@ -23,7 +23,7 @@ app.use(morgan("dev"));
 //routes
 app.use("/api/v1/auth", authRoute);
 
-// health check (optional but useful)
+// health check 
 app.get("/", (req, res) => {
     res.send("Server is running");
 });

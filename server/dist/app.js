@@ -21,7 +21,7 @@ app.use(express_1.default.json());
 app.use(morgan("dev"));
 //routes
 app.use("/api/v1/auth", authRoutes_1.router);
-// health check (optional but useful)
+// health check 
 app.get("/", (req, res) => {
     res.send("Server is running");
 });

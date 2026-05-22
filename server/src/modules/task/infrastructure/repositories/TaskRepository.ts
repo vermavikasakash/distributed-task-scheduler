@@ -16,24 +16,6 @@ export class TaskRepository implements TaskPersistencePort {
     return null;
   }
 
-  async saveTasks(tasks: any[]): Promise<void> {
-    try {
-      await TaskModel.insertMany(tasks);
-    } catch (error) {
-      console.error("Error saving tasks:", error);
-      throw error;
-    }
-  }
-
-  async createTask(task: any): Promise<any> {
-    try {
-      return await TaskModel.create(task);
-    } catch (error) {
-      console.error("Error creating task:", error);
-      throw error;
-    }
-  }
-
   async createTaskRecord(task: Task): Promise<void> {
     const terminalStatus = this.getTerminalStatus(task);
 
@@ -77,7 +59,7 @@ export class TaskRepository implements TaskPersistencePort {
     return TaskModel.countDocuments();
   }
 
-  async getTasksByTaskId(taskId: string) {
+  async getTaskById(taskId: string) {
     return TaskModel.findById(taskId);
   }
 }

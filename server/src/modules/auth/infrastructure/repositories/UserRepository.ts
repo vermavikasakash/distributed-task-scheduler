@@ -1,6 +1,7 @@
 import { UserModel } from "../models/UserModel";
 
 export class UserRepository {
+  
   async getUserById(userId: string): Promise<any | null> {
     return UserModel.findById(userId);
   }

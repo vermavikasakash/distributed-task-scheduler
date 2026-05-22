@@ -61,7 +61,7 @@ export const updateTaskStatusController = async (
       return res.status(400).json({ message: "Invalid task id" });
     }
 
-    const task = await taskRepo.getTasksByTaskId(taskId);
+    const task = await taskRepo.getTaskById(taskId);
 
     if (!task) {
       return res.status(404).json({ message: "Task not found" });
