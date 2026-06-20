@@ -4,7 +4,7 @@ const cors = require("cors");
 const colors = require("colors");
 const morgan = require("morgan");
 
-const { authRoute } = require("./modules/auth/presentation/routes/authRoutes");
+const  { router: authRoute  } = require("./modules/auth/presentation/routes/authRoutes");
 const { connectDB } = require("./shared/config/db");
 
 const app = express();
