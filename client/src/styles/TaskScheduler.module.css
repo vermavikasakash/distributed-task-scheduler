@@ -151,12 +151,6 @@
   margin-bottom: 1.5rem;
 }
 
-.loginActions {
-  display: flex;
-  justify-content: flex-start;
-  margin-top: 1rem;
-}
-
 .helperText {
   color: #59695f;
   font-size: 0.92rem;
@@ -304,11 +298,6 @@
 .statusQueued {
   background: #e8f2eb;
   color: #1a472a;
-}
-
-.statusAssigned {
-  background: #ece7ff;
-  color: #4b3fb3;
 }
 
 .statusProcessing {

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getAllTasksFunction,
   getDashboardStatsFunction,
-} from "../../serviceApi/registerApi";
+} from "../../serviceApi/taskApi";
 import Loader from "../../components/loader/Loader";
 import styles from "../../styles/TaskScheduler.module.css";
 
@@ -85,10 +85,6 @@ const ViewTask = () => {
       return styles.statusRetry;
     }
 
-    if (normalizedStatus === "assigned") {
-      return styles.statusAssigned;
-    }
-
     return styles.statusQueued;
   };
 
@@ -164,9 +160,9 @@ const ViewTask = () => {
                     <td>{data?.notes || "-"}</td>
                     <td>
                       <span
-                        className={`${styles.statusPill} ${getStatusClassName(data?.currentStatus)}`}
+                        className={`${styles.statusPill} ${getStatusClassName(data?.status)}`}
                       >
-                        {data?.currentStatus || "QUEUED"}
+                        {data?.status}
                       </span>
                     </td>
                     <td>{data?.retryCount ?? 0}</td>

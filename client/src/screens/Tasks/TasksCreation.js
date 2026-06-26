@@ -8,7 +8,7 @@ import Task_Template from "../../components/Task_Template.xls";
 import {
   getDashboardStatsFunction,
   taskCreationFunction,
-} from "../../serviceApi/registerApi";
+} from "../../serviceApi/taskApi";
 import styles from "../../styles/TaskScheduler.module.css";
 
 const TaskCreation = () => {
@@ -84,7 +84,7 @@ const TaskCreation = () => {
       setFileName("");
 
       setTimeout(() => {
-        navigate("/home-page");
+        navigate("/");
       }, 1500);
     } else {
       toast.error(result?.data?.message || "Upload failed");
@@ -105,7 +105,7 @@ const TaskCreation = () => {
       </section>
 
       <div className={styles.tabDiv}>
-        <Button variant="outline-success" onClick={() => navigate("/home-page")}>
+        <Button variant="outline-success" onClick={() => navigate("/")}>
           Back to Dashboard
         </Button>
       </div>
@@ -208,8 +208,8 @@ const TaskCreation = () => {
         </Table>
 
         <p className={styles.metaText} style={{ marginTop: "14px" }}>
-          Tasks are queued immediately and processed by internal workers in the
-          backend.
+          Tasks are queued in RabbitMQ and processed by separate worker
+          processes.
         </p>
       </Container>
     </Layout>

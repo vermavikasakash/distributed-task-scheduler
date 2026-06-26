@@ -9,18 +9,13 @@ const taskSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["completed", "failed"],
-      required: false,
+      enum: Object.values(TaskStatus),
+      default: TaskStatus.PROCESSING,
+      required: true,
     },
 
-    taskId: { type: String },
+    taskId: { type: String, required : true },
     retryCount: { type: Number, default: 0 },
-    internalStatus: {
-      type: String,
-      enum: Object.values(TaskStatus),
-      required: true,
-      default: TaskStatus.QUEUED,
-    },
   },
   { timestamps: true }
 );

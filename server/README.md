@@ -1,56 +1,76 @@
-# Distributed Task Scheduler (Backend)
+# Distributed Task Scheduler
 
-A scalable backend system for asynchronous task processing using a Queue → Scheduler → Worker architecture.
+A small learning project showing how an API can publish tasks to RabbitMQ and
+how independent worker processes consume them.
 
----
+## Flow
 
-## Overview
+```text
+Client/UI
+    |
+    v
+API
+    | Publish
+    v
+RabbitMQ (Tasks Queue)
+    | Consume
+    v
+Worker
+    |
+    v
+MongoDB
 
-This system decouples task creation from execution using a queue-based design. Tasks are processed asynchronously by workers with retry, backoff, and failure handling.
+Failure
+   |
+   v
+Retry Queue
+   | TTL Expired
+   v
+Dead Letter Exchange
+   |
+   `---------> Tasks Queue
+```
 
----
+- The API validates task uploads and publishes each task to RabbitMQ.
+- RabbitMQ gives each message to one available worker.
+- Workers create each MongoDB task record, then update it to `PROCESSING` and
+  finally `COMPLETED`.
+- Failed tasks wait in a retry queue; when the TTL expires, RabbitMQ dead-letters
+  them through the configured exchange and routes them back to the tasks queue.
+- After the configured retry limit, the task becomes `FAILED`.
 
-## ⚙️ Architecture
+## Setup
 
-Client → API → Queue → Scheduler → Workers → Result
+1. Copy `.env.example` to `.env` and adjust the values.
+2. Start RabbitMQ:
 
-- **Queue**: Buffers incoming tasks
-- **Scheduler**: Assigns tasks using round-robin
-- **Workers**: Execute tasks with retry + rate limiting
+   ```bash
+   docker run -d --name task-rabbitmq \
+     -p 5672:5672 -p 15672:15672 \
+     rabbitmq:management
+   ```
 
----
+3. Install and run the API:
 
-## ✨ Features
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-- Asynchronous task processing
-- Retry with exponential backoff (`nextRetryAt`)
-- Per-worker rate limiting
-- Round-robin task distribution
-- Task lifecycle management:
-  - Pending → Processing → Completed / Failed
-- Fault tolerance with bounded retries
+4. In another terminal, run a worker:
 
----
+   ```bash
+   npm run dev:worker
+   ```
 
-## 🛠 Tech Stack
+5. Run more workers in more terminals to see RabbitMQ distribute tasks:
 
-- Node.js
-- TypeScript
-- Express
-- MongoDB
-- JWT Authentication
+   ```bash
+   npm run worker
+   ```
 
----
+The RabbitMQ dashboard is available at `http://localhost:15672`. The default
+local login is `guest` / `guest`.
 
-## Getting Started
-
-### 1. Install dependencies
-npm install
-### 2. Run in development
-npm run dev
-
-# Key Concepts
-Retry Mechanism: Tasks are retried with exponential backoff
-Rate Limiting: Workers process limited tasks per time window
-Failure Handling: Tasks marked FAILED after max retries
-Decoupling: API and execution are independent
+Set `TASK_FAILURE_RATE=0` for always-successful tasks, or use a value from `0`
+to `1` to demonstrate retries.

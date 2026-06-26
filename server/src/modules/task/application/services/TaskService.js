@@ -1,49 +1,24 @@
-const { v4: uuidv4 } = require("uuid");
+const { randomUUID } = require("crypto");
 const { Task } = require("../../domain/entities/Task");
-const { TaskRepository } = require("../../infrastructure/repositories/TaskRepository");
-const { taskQueue, scheduler } = require("../../../scheduler/bootstrap/schedulerInstance");
+const { publishTask } = require("../../../../shared/config/rabbitmq");
 
 /**
  * TaskService - Application service layer for task operations
- * Orchestrates task creation, queuing, and scheduling
+ * Publishes tasks to RabbitMQ. Workers own task persistence.
  */
 class TaskService {
   /**
-   * Create TaskService instance
-   * @param {TaskRepository} [taskRepo=new TaskRepository()] - Task repository instance
-   */
-  constructor(taskRepo = new TaskRepository()) {
-    this.taskRepo = taskRepo;
-  }
-
-  /**
    * Create and queue multiple tasks
-   * Tasks are assigned unique IDs, persisted to database, and queued for processing
-   * @async
-   * @param {Array<Object>} tasks - Array of task payloads
-   * @param {string} tasks[].firstName - First name
-   * @param {string} tasks[].phone - Phone number
-   * @param {string} tasks[].notes - Task notes
-   * @returns {Promise<void>}
+   * Tasks are assigned unique IDs and queued for worker processing.
    */
   async createTasks(tasks) {
     const taskObjects = tasks.map((taskPayload) => {
-      return new Task(uuidv4(), taskPayload);
-      // Task is already initialized with status = QUEUED in constructor
+      return new Task(randomUUID(), taskPayload);
     });
 
-    console.log("Tasks added:", taskObjects.length);
+    console.log("Tasks published:", taskObjects.length);
 
-    // Persist all tasks to database
-    await Promise.all(
-      taskObjects.map((task) => this.taskRepo.createTaskRecord(task))
-    );
-
-    // Enqueue tasks for processing
-    taskQueue.enqueueBulk(taskObjects);
-
-    // Start the scheduler
-    scheduler.schedule();
+    await Promise.all(taskObjects.map((task) => publishTask(task)));
   }
 }
 

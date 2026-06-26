@@ -13,14 +13,6 @@ const getErrorResponse = (error, fallbackMessage) => {
   );
 };
 
-const loginFunction = async (payload) => {
-  try {
-    return await axiosInstance.post("/api/v1/auth/login", payload);
-  } catch (error) {
-    return getErrorResponse(error, "Unable to sign in");
-  }
-};
-
 const taskCreationFunction = async (tasks) => {
   try {
     if (!tasks || tasks.length === 0) {
@@ -32,7 +24,7 @@ const taskCreationFunction = async (tasks) => {
       };
     }
 
-    return await axiosInstance.post("/api/v1/auth/createTask", {
+    return await axiosInstance.post("/api/v1/tasks", {
       tasks,
     });
   } catch (error) {
@@ -42,7 +34,7 @@ const taskCreationFunction = async (tasks) => {
 
 const getAllTasksFunction = async () => {
   try {
-    return await axiosInstance.get("/api/v1/auth/getTasks");
+    return await axiosInstance.get("/api/v1/tasks");
   } catch (error) {
     return getErrorResponse(error, "Unable to fetch tasks");
   }
@@ -50,14 +42,13 @@ const getAllTasksFunction = async () => {
 
 const getDashboardStatsFunction = async () => {
   try {
-    return await axiosInstance.get("/api/v1/auth/dashboard-stats");
+    return await axiosInstance.get("/api/v1/tasks/dashboard-stats");
   } catch (error) {
     return getErrorResponse(error, "Unable to fetch dashboard stats");
   }
 };
 
 export {
-  loginFunction,
   taskCreationFunction,
   getAllTasksFunction,
   getDashboardStatsFunction,

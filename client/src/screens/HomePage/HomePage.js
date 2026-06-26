@@ -5,15 +5,12 @@ import ViewTask from "../Tasks/ViewTask";
 import styles from "../../styles/TaskScheduler.module.css";
 
 const HomePage = () => {
-  const user = JSON.parse(sessionStorage.getItem("user") || "{}");
-  const adminName = user?.name || "Admin";
-
   return (
     <Layout>
       <section className={styles.pageIntro}>
-        <p className={styles.eyebrow}>Admin Workspace</p>
+        <p className={styles.eyebrow}>Scheduler Workspace</p>
         <h1 className={styles.pageTitle}>
-          Queue tasks quickly and keep an eye on worker outcomes.
+          Publish tasks, watch RabbitMQ route them, and track worker outcomes.
         </h1>
        
 
@@ -27,10 +24,11 @@ const HomePage = () => {
           </Link>
 
           <div className={styles.infoCard}>
-            <span className={styles.actionCardTitle}>Signed in as {adminName}</span>
+            <span className={styles.actionCardTitle}>Queue-driven processing</span>
             <span className={styles.actionCardDescription}>
-              Background workers process tasks asynchronously, so statuses update
-              after upload without any separate agent dashboard.
+              The API publishes each task to RabbitMQ. Workers consume messages,
+              update MongoDB, and failed jobs wait in the retry queue before
+              returning to the tasks queue.
             </span>
           </div>
         </div>

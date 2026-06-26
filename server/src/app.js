@@ -1,19 +1,15 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const cors = require("cors");
-const colors = require("colors");
-const morgan = require("morgan");
-
-const  { router: authRoute  } = require("./modules/auth/presentation/routes/authRoutes");
-const { connectDB } = require("./shared/config/db");
-
-const app = express();
-
-// Configure environment variables
 dotenv.config();
 
-// Database connection
-connectDB();
+const cors = require("cors");
+const morgan = require("morgan");
+
+const { router: taskRoute } = require("./modules/task/presentation/routes/taskRoutes");
+const { connectDB } = require("./shared/config/db");
+const { connectRabbitMQ, closeRabbitMQ } = require("./shared/config/rabbitmq");
+
+const app = express();
 
 // Middleware
 app.use(cors());
@@ -21,19 +17,38 @@ app.use(express.json());
 app.use(morgan("dev"));
 
 // Routes
-app.use("/api/v1/auth", authRoute);
+app.use("/api/v1/tasks", taskRoute);
 
 // Health check
 app.get("/", (req, res) => {
   res.send("Server is running");
 });
 
-const PORT = process.env.PORT || 8080;
-const dev = process.env.DEV_MODE || "development";
+const startServer = async () => {
+  await connectDB();
+  await connectRabbitMQ();
 
-app.listen(PORT, (err) => {
-  if (err) console.log(err);
-  console.log(colors.bgRed(`server run on ${dev} port ${PORT}`));
-});
+  const PORT = process.env.PORT || 5000;
+  const dev = process.env.DEV_MODE || "development";
 
-module.exports = { app };
+  app.listen(PORT, () => {
+    console.log(`Server running in ${dev} mode on port ${PORT}`);
+  });
+};
+
+const shutdown = async () => {
+  await closeRabbitMQ();
+  process.exit(0);
+};
+
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+
+if (require.main === module) {
+  startServer().catch((error) => {
+    console.error("Server failed to start:", error);
+    process.exit(1);
+  });
+}
+
+module.exports = { app, startServer };
