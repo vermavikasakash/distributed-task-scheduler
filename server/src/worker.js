@@ -1,5 +1,6 @@
 const dotenv = require("dotenv");
 dotenv.config();
+const express = require("express"); // for demo
 
 const { connectDB } = require("./shared/config/db");
 const {
@@ -106,6 +107,22 @@ const shutdown = async () => {
 
 process.on("SIGINT", shutdown);
 process.on("SIGTERM", shutdown);
+
+// for demo code starts
+const app = express();
+const PORT = process.env.PORT || 5000;
+app.get("/", (req, res) => {
+  res.json({
+    status: "UP",
+    service: "worker",
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`Worker health server listening on ${PORT}`);
+});
+
+// for demo code ends
 
 startWorker().catch((error) => {
   console.error("Worker failed to start:", error);
