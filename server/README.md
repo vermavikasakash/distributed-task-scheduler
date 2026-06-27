@@ -3,6 +3,9 @@
 A small learning project showing how an API can publish tasks to RabbitMQ and
 how independent worker processes consume them.
 
+# note
+Demo Mode: Since free hosting platforms don't provide an always-on background worker, the deployed demo drains the RabbitMQ queue immediately after publishing using the same worker logic. The Docker/local setup runs the worker as an independent service.
+
 ## Flow
 
 ```text

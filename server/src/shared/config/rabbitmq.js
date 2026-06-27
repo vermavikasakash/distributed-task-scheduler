@@ -4,7 +4,7 @@ const TASK_QUEUE = process.env.RABBITMQ_TASK_QUEUE || "tasks";
 const RETRY_QUEUE = `${TASK_QUEUE}.retry`;
 const DEAD_LETTER_EXCHANGE =
   process.env.RABBITMQ_DEAD_LETTER_EXCHANGE || `${TASK_QUEUE}.dlx`;
-const RETRY_DELAY_MS = Number(process.env.TASK_RETRY_DELAY_MS || 5000);
+const RETRY_DELAY_MS = Number(process.env.TASK_RETRY_DELAY_MS || 5200);
 
 let connection;
 let channel;
